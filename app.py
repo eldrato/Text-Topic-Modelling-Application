@@ -47,6 +47,7 @@ from src.visualization import (
     plot_document_topic_heatmap,
     plot_documents_2d_projection,
     plot_top_words_bar,
+    plot_topic_distribution,
     plot_topic_search_curves,
 )
 

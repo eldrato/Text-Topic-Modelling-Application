@@ -199,6 +199,10 @@ def plot_topic_distribution(
     return fig
 
 
+# Backward compatibility alias
+plot_document_distribution = plot_topic_distribution
+
+
 def plot_document_topic_heatmap(
     doc_topic_matrix: np.ndarray,
     topic_labels: List[str],
