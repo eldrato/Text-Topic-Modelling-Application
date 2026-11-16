@@ -1,379 +1,211 @@
-# 🧠 Text Topic Modelling Application
+# 🔬 Text Topic Modelling Studio
 
-An interactive Streamlit app that automatically discovers hidden topics and common themes in a collection of text documents using **LDA** (Latent Dirichlet Allocation) and **NMF** (Non-negative Matrix Factorization).
-
-Upload your own documents or feedback logs, or load the **20 Newsgroups** benchmark dataset. Then clean the text, train a model, explore the topics, and see which topic every document belongs to.
-
-![Python](https://img.shields.io/badge/Python-3.11-blue)
-![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-LDA%20%7C%20NMF-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+An interactive, production-ready Natural Language Processing (NLP) application built with **Streamlit**, **scikit-learn**, and **NLTK** that discovers latent topics, keyword importance distributions, and document thematic clusterings across arbitrary text corpora.
 
 ---
 
-## 📑 Table of Contents
+## 📌 1. Project Overview
 
-- [Features](#-features)
-- [Demo / Screenshots](#-demo--screenshots)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Running the App](#-running-the-app)
-- [How to Use the GUI](#-how-to-use-the-gui)
-- [How It Works](#-how-it-works)
-- [Evaluation Metrics](#-evaluation-metrics)
-- [Sample Data](#-sample-data)
-- [Running Tests](#-running-tests)
-- [Limitations and Future Work](#-limitations-and-future-work)
-- [Viva / Interview Q&A](#-viva--interview-qa)
-- [Contributing](#-contributing)
-- [License](#-license)
+Unstructured text collections (customer reviews, survey responses, news articles, academic publications, support tickets) often contain hidden patterns and recurring themes that are difficult to analyze manually. 
+
+**Text Topic Modelling Studio** automates this discovery process:
+1. Ingests raw text from multiple `.txt` files, CSV/Excel spreadsheets, or standard datasets (20 Newsgroups).
+2. Cleans and normalizes text through an interactive, toggleable NLTK preprocessing pipeline.
+3. Fits **Latent Dirichlet Allocation (LDA)** or **Non-Negative Matrix Factorization (NMF)** models.
+4. Computes topic-word distributions, extracts normalized keyword weights, and auto-generates human-readable labels.
+5. Assigns every document to its dominant topic with an associated confidence probability score.
+6. Presents comprehensive diagnostic charts (word clouds, distribution bars, heatmaps, 2D PCA/t-SNE cluster maps) and an out-of-sample real-time inference playground.
 
 ---
 
-## ✨ Features
+## ✨ 2. Key Features
 
-| Area | What you get |
-|---|---|
-| **Data ingestion** | Multiple `.txt` uploads, CSV / Excel with column picker, 20 Newsgroups (adjustable size and categories), and built-in sample data as an offline fallback |
-| **Input safety** | Encoding fallback (UTF-8, then Latin-1), empty-file handling, and a minimum-document check with friendly error messages |
-| **Preprocessing** | Lowercasing, URL / email / HTML removal, number and punctuation stripping, tokenization, stopword removal (NLTK plus custom list), lemmatization, short-token filtering. Every step is toggleable from the GUI |
-| **Topic models** | LDA on word counts and NMF on TF-IDF, with configurable topics, iterations, `max_df`, `min_df`, n-grams, and random seed |
-| **Topic insight** | Top words per topic with normalized weights, plus auto-generated labels such as `space_mission_orbit` |
-| **Document grouping** | Dominant topic and confidence score for every document, with search, filter, and CSV export |
-| **Evaluation** | Perplexity, log-likelihood, coherence (c_v, via gensim when available), and a "Find Best Number of Topics" tuner |
-| **Visualizations** | Top-word bar charts, word clouds, topic distribution (pie / bar), document-topic heatmap, 2D PCA / t-SNE scatter, optional pyLDAvis |
-| **Inference** | Paste new text and see its predicted topic distribution using the trained model |
-
----
-
-## 🖼 Demo / Screenshots
-
-> Add your screenshots to a `docs/` or `assets/` folder and update the paths below.
-
-| Discovered Topics | Document Assignments |
-|---|---|
-| ![Topics](assets/topics.png) | ![Assignments](assets/assignments.png) |
-
-| Visualizations | Try Your Own Text |
-|---|---|
-| ![Viz](assets/visualizations.png) | ![Predict](assets/predict.png) |
-
----
-
-## 🛠 Tech Stack
-
-- **Language:** Python 3.11
-- **GUI:** Streamlit
-- **NLP / ML:** scikit-learn (`CountVectorizer`, `TfidfVectorizer`, `LatentDirichletAllocation`, `NMF`), NLTK
-- **Data:** pandas, numpy, openpyxl
-- **Visualization:** Plotly, Matplotlib, WordCloud
-- **Optional:** gensim (coherence score), pyLDAvis (interactive topic map)
-
-> **Graceful fallbacks:** if `gensim` or `pyLDAvis` cannot be installed or imported in your environment, the app logs a notice and continues using perplexity / log-likelihood and the native Plotly PCA / t-SNE projection.
+- **Multi-Source Ingestion**:
+  - Upload multiple `.txt` files (one document per file) with automatic encoding detection (`UTF-8` and `Latin-1`).
+  - Upload CSV or XLSX spreadsheets and select which column contains the document text.
+  - Fetch subsets of the academic **20 Newsgroups** benchmark dataset by category.
+  - Offline fallback to bundled sample customer reviews (`feedback.csv`) and diverse topic articles (`sample_data/txt_docs/`).
+- **Configurable NLP Preprocessing**:
+  - Lowercasing, URL/email/HTML stripping, number and punctuation removal.
+  - English stopword filtering plus a live, user-editable custom stopwords list.
+  - Morphological lemmatization via NLTK WordNet.
+  - Interactive "Before vs. After" side-by-side inspection for any document.
+- **Dual Topic Modelling Engines**:
+  - **LDA (Latent Dirichlet Allocation)**: Probabilistic generative modeling via term count frequencies (`CountVectorizer`).
+  - **NMF (Non-Negative Matrix Factorization)**: Linear algebraic parts-based decomposition using `TfidfVectorizer`.
+- **Dominant Topic Document Assignment**:
+  - Searchable, filterable table linking Document IDs, Titles, Text Snippets, Dominant Topics, and Confidence Scores.
+  - Instant one-click CSV export of assigned document records.
+- **Rich Visualizations (Plotly & WordCloud)**:
+  - Horizontal bar charts of top keywords and normalized weights.
+  - High-resolution WordClouds per topic.
+  - Corpus composition breakdown (interactive Bar and Donut/Pie charts).
+  - Document-Topic assignment probability heatmaps.
+  - 2D dimensional reduction projection maps (PCA and t-SNE) colored by topic.
+- **Model Evaluation & Optimal Topic Count Search**:
+  - Model Perplexity and Log-Likelihood for LDA; Reconstruction Error for NMF.
+  - Topic Coherence score ($C_v$) with gensim support.
+  - Automated grid search across topic counts ($k_{min}$ to $k_{max}$) with metric tuning curves and automated recommendation.
+- **Real-Time Inference Sandbox ("Try Your Own Text")**:
+  - Paste arbitrary unseen text to test live classification, displaying dominant topic label, confidence percentage, and full topic probability distribution.
 
 ---
 
-## 📁 Project Structure
+## 🏗️ 3. Project Structure
 
 ```
 topic_modelling_app/
-├── app.py                     # Streamlit GUI entry point (6 tabs)
+├── app.py                     # Streamlit GUI application entry point
 ├── src/
 │   ├── __init__.py
-│   ├── data_loader.py         # TXT, CSV/XLSX, 20 Newsgroups, sample-data loaders + validation
-│   ├── preprocessing.py       # Configurable cleaning pipeline (PreprocessingOptions dataclass)
-│   ├── topic_model.py         # LDA & NMF training, top words, doc-topic matrix, inference
-│   ├── evaluation.py          # Perplexity, log-likelihood, coherence, topic-count search
-│   └── visualization.py       # Plotly charts, word clouds, heatmap, PCA / t-SNE
+│   ├── data_loader.py         # Multi-format document ingestion & encoding validation
+│   ├── preprocessing.py       # Configurable NLTK text cleaning pipeline
+│   ├── topic_model.py         # LDA & NMF engines, keyword extraction, document assignment
+│   ├── evaluation.py          # Perplexity, log-likelihood, coherence & topic-count search
+│   └── visualization.py       # Plotly charts, WordClouds, heatmaps, 2D projections
 ├── sample_data/
-│   ├── feedback.csv           # 30 multi-category customer reviews
-│   └── txt_docs/              # 12 sample text files (tech, science, health, space, ...)
+│   ├── feedback.csv           # 30 realistic multi-theme customer reviews
+│   └── txt_docs/              # 12 diverse sample articles (AI, space, energy, medicine, finance, sports)
 ├── tests/
 │   ├── __init__.py
-│   ├── test_preprocessing.py
-│   └── test_topic_model.py
-├── requirements.txt
-└── README.md
+│   ├── test_preprocessing.py  # Unit tests for text cleaning & edge cases
+│   ├── test_topic_model.py    # Unit tests for LDA/NMF fit & inference
+│   └── test_evaluation.py     # Unit tests for metrics & parameter search
+├── requirements.txt           # Pinned, tested dependencies
+└── README.md                  # Complete documentation & interview guide
 ```
 
 ---
 
-## ⚙️ Installation
+## 🚀 4. Installation & Setup
 
-### 1. Clone the repository
+### Prerequisites
+- Python 3.10, 3.11, or 3.12 installed.
 
-```bash
-git clone https://github.com/<your-username>/topic_modelling_app.git
-cd topic_modelling_app
-```
+### Step-by-Step Installation
 
-### 2. Create a virtual environment (Python 3.11 recommended)
+1. **Clone or navigate to the project directory:**
+   ```bash
+   cd "text topic modelling"
+   ```
 
-**Windows**
-```bash
-py -3.11 -m venv .venv
-.venv\Scripts\activate
-```
+2. **Create a virtual environment:**
+   - **Windows:**
+     ```powershell
+     py -3.11 -m venv .venv
+     .\.venv\Scripts\activate
+     ```
+   - **macOS / Linux:**
+     ```bash
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
 
-**macOS / Linux**
-```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-```
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. NLTK data
-
-The app downloads the required NLTK resources (`stopwords`, `wordnet`, `punkt`, `punkt_tab`) automatically on first run. If you are offline, it falls back to a regex tokenizer and continues to work. To download manually:
-
-```bash
-python -m nltk.downloader stopwords wordnet punkt punkt_tab
-```
+4. **Verify the installation by running the test suite:**
+   ```bash
+   pytest tests/ -v
+   ```
 
 ---
 
-## ▶️ Running the App
+## 🖥️ 5. How to Run the Application
 
+Launch the Streamlit dashboard using:
 ```bash
 streamlit run app.py
 ```
-
-Then open **http://localhost:8501** in your browser.
-
----
-
-## 🖱 How to Use the GUI
-
-### Sidebar
-
-1. **Choose a data source:** Upload TXT files, Upload CSV/Excel, 20 Newsgroups, or Load Sample Data.
-2. **Set ingestion options:** subset size and categories for 20 Newsgroups, or the text column for CSV / Excel.
-3. **Configure preprocessing:** toggle each cleaning step and add custom stopwords.
-4. **Configure the model:** algorithm (LDA / NMF), number of topics, top words, iterations, `max_df`, `min_df`, n-gram range, random seed.
-5. Click **🚀 Run Topic Modelling**. Use **🔄 Reset** to clear everything.
-
-### Tabs
-
-| Tab | Description |
-|---|---|
-| **Data Overview** | Total and cleaned document counts, vocabulary size, average length, raw document table, and a before / after cleaning inspector |
-| **Discovered Topics** | A card per topic with its label, top words with weights, bar chart, and word cloud |
-| **Document Assignments** | Searchable table (Doc ID, Snippet, Dominant Topic, Topic Label, Confidence), a topic filter, and CSV download |
-| **Visualizations** | Topic distribution, document-topic heatmap, and 2D PCA / t-SNE scatter colored by topic |
-| **Model Evaluation** | Perplexity, log-likelihood, coherence, and the "Find Best Number of Topics" tuning curve with a recommended *k* |
-| **Try Your Own Text** | Paste any text to see the cleaned tokens and the predicted topic distribution |
-
-### Things to try
-
-1. Click **Load Sample Data**, set topics to 4, and run. Check whether the topics match the sample categories.
-2. Load **20 Newsgroups** with 2,000 documents and compare **LDA vs NMF** results.
-3. Open **Model Evaluation** and run **Find Best Number of Topics**, then retrain with the recommended value.
+Your default browser will automatically open to `http://localhost:8501`.
 
 ---
 
-## 🔬 How It Works
+## 🧭 6. How to Use the GUI (Tab-by-Tab Walkthrough)
 
-```
-Raw documents
-     │
-     ▼
-Preprocessing ── lowercase → remove URLs/emails/HTML/numbers/punctuation
-     │            → tokenize → remove stopwords → lemmatize → drop short tokens
-     ▼
-Vectorization ── CountVectorizer (LDA)  |  TfidfVectorizer (NMF)
-     │
-     ▼
-Topic model ──── LDA  or  NMF
-     │
-     ├── Topic-word matrix  → top words + auto labels
-     └── Document-topic matrix → dominant topic + confidence
-     ▼
-Visualization, evaluation, and inference on new text
-```
+### 1. Sidebar Controls
+- **Data Source**: Pick "Use Bundled Sample Data", upload your own `.txt` files, or upload a CSV/Excel file.
+- **Text Preprocessing**: Toggle any cleaning stage (e.g. disable lemmatization or add domain keywords into the Custom Stopwords box).
+- **Model Settings**: Choose between **LDA** and **NMF**, set the number of topics $k$ (e.g. 4), and adjust the number of top words.
+- Click **🚀 Run Modelling** to process documents and train the model. Click **🔄 Reset** to start fresh.
 
-### LDA in simple words
-
-LDA assumes that:
-
-- every **document** is a mixture of a few **topics** (for example, 70% sports, 30% politics), and
-- every **topic** is a distribution over **words** (the sports topic favors "game", "team", "season").
-
-Starting from random guesses, LDA repeatedly adjusts these two sets of distributions until they best explain the words actually seen in the documents. The output is:
-
-- a **topic-word** matrix, which tells you what each topic is about, and
-- a **document-topic** matrix, which tells you what each document is about.
-
-Two Dirichlet priors control the behavior: **α** (document-topic sparsity) and **β / η** (topic-word sparsity).
-
-### LDA vs NMF in this app
-
-| | LDA | NMF |
-|---|---|---|
-| Input matrix | Word counts | TF-IDF |
-| Approach | Probabilistic generative model | Matrix factorization (`V ≈ W·H`, all values ≥ 0) |
-| Output | True probabilities | Non-negative weights (normalized for display) |
-| Tends to be better at | Interpretable mixtures on longer texts | Crisp, coherent topics on short texts, and faster |
+### 2. Main Tabs
+- **📊 Data Overview**: Check summary metrics (document count, vocabulary size), inspect raw document snippets, and compare a document before and after cleaning.
+- **💡 Discovered Topics**: Inspect the discovered topics. Switch between the "Detailed Topic Inspector" (bar chart + word cloud + weight table) and "All Topics Combined Grid".
+- **📄 Document Assignments**: Filter documents by topic, search by keywords, view the model's confidence progress bar, and download the annotated records as a CSV.
+- **📈 Visualizations**: Explore corpus breakdown charts, view the document-topic probability heatmap, and explore the interactive 2D PCA or t-SNE scatter plot.
+- **🎯 Model Evaluation**: Inspect Perplexity and Log-Likelihood. Click **⚡ Run Topic Count Grid Search** to evaluate $k \in [2, 7]$ and receive an optimal topic recommendation.
+- **✍️ Try Your Own Text**: Paste any new text snippet and click **🔮 Classify Topic** to view its predicted topic distribution and confidence score.
 
 ---
 
-## 📊 Evaluation Metrics
+## 🧠 7. Explanation of LDA in Simple Words
 
-- **Perplexity** (LDA): lower is better. Measures how well the model predicts held-out words.
-- **Log-likelihood** (LDA): higher is better.
-- **Reconstruction error** (NMF): lower is better.
-- **Coherence (c_v)**: higher is better. Measures how semantically related the top words of each topic are (requires `gensim`).
-- **Best-k search:** trains models across a range of topic counts (default 2 to 15), plots the metric curves, and recommends a value of *k*.
+Imagine a journalist who writes articles on a daily basis. When writing an article:
+1. The journalist does not write about only one subject. Instead, each article is a **mixture of different topics** (e.g., 60% Space Exploration, 30% Artificial Intelligence, 10% Government Policy).
+2. Each topic is, in turn, characterized by a **mixture of words** (e.g., the Space topic frequently uses *"orbit"*, *"rocket"*, *"satellite"*; the AI topic frequently uses *"neural"*, *"model"*, *"algorithm"*).
 
-> Perplexity and human interpretability do not always agree. Coherence is usually the better guide for choosing *k*, and you should still read the topics yourself.
-
----
-
-## 🗂 Sample Data
-
-Both samples work offline and are used automatically if 20 Newsgroups cannot be downloaded.
-
-- `sample_data/feedback.csv`: 30 customer reviews covering bugs, billing, feature requests, and praise.
-- `sample_data/txt_docs/`: 12 text files covering AI, astronomy, renewable energy, medicine, economics, sports, and more.
+**Latent Dirichlet Allocation (LDA)** reverses this process through unsupervised statistical inference:
+- It only sees the raw finished documents.
+- It asks: *"Given the words that appear together across these documents, what latent (hidden) topics most likely produced this collection, and in what proportions does each document contain them?"*
+- Mathematically, LDA models the document-topic distribution ($\theta$) and the topic-word distribution ($\phi$) using Dirichlet priors ($\alpha$ and $\beta$), optimizing them via variational inference or Gibbs sampling so words that frequently co-occur are clustered into coherent themes.
 
 ---
 
-## 🧪 Running Tests
+## 📊 8. Sample Output Description
 
-```bash
-pytest tests/ -v
-```
+Running LDA with $k=4$ topics on the bundled sample customer feedback dataset (`sample_data/feedback.csv`) produces distinct themes:
+- **Topic 1 (`crash_export_freeze`)**: Software stability and runtime bugs (crashes, memory leaks, freezes).
+- **Topic 2 (`charge_invoice_refund`)**: Billing and payment concerns (double charges, subscription renewals, invoice disputes).
+- **Topic 3 (`response_ticket_support`)**: Customer service responsiveness (ticket turnaround time, delayed emails, helpdesk articles).
+- **Topic 4 (`dashboard_export_shortcut`)**: Feature requests and UI enhancements (dark mode, Excel export, keyboard shortcuts).
 
-| File | Covers |
-|---|---|
-| `test_preprocessing.py` | Cleaning steps, stopword filtering, lemmatization, edge cases (empty strings, non-ASCII) |
-| `test_topic_model.py` | Vectorization, LDA / NMF fitting, top-word extraction, probability normalization, single-text inference |
-
-Quick import smoke test:
-
-```bash
-python -c "import app, src.data_loader, src.preprocessing, src.topic_model, src.evaluation, src.visualization; print('Imports valid!')"
-```
+In the **Document Assignments** tab, an input review like *"The app crashed when exporting large reports"* receives a **94% confidence score** assigned to Topic 1, allowing automated ticket routing and thematic aggregation.
 
 ---
 
-## ⚠️ Limitations and Future Work
+## 🔮 9. Limitations & Future Improvements
 
-**Current limitations**
-
-- LDA and NMF use a bag-of-words view and ignore word order and deeper context.
-- Results depend on preprocessing choices and the chosen number of topics.
-- Very short documents (tweets, one-line reviews) give weaker topics.
-- Very large corpora (10,000+ documents) can make training and t-SNE slow.
-- The topic count must be chosen up front.
-
-**Planned improvements**
-
-- [ ] BERTopic / transformer-embedding based topics
-- [ ] Dynamic topic modelling (topics over time)
-- [ ] Hierarchical topic modelling
-- [ ] Multi-language support
-- [ ] Save / load trained models
-- [ ] Manual topic renaming and merging in the GUI
-- [ ] Docker image and cloud deployment
+1. **Bag-of-Words Limitation**: Standard LDA and NMF treat documents as bags of words, ignoring sequential word order and sentence context.
+   - *Future Upgrade*: Integrate transformer-based topic models like **BERTopic** or **Top2Vec**, which use dense sentence embeddings (e.g., MiniLM) and HDBSCAN clustering.
+2. **Static Corpus Assumption**: Classical LDA assumes document topics are constant over time.
+   - *Future Upgrade*: Implement **Dynamic Topic Modeling (DTM)** to observe how themes evolve over days, months, or years.
+3. **Fixed Hyperparameter $k$**: The user must specify the number of topics upfront.
+   - *Mitigation*: Our built-in **Topic Count Grid Search** tool automates finding the optimal $k$ across perplexity and coherence curves.
+4. **Short Text Sparsity**: For very short texts (tweets, single-sentence chats), word co-occurrence counts are sparse.
+   - *Mitigation*: Enable N-gram combinations (unigrams + bigrams) and TF-IDF weighting in the Advanced settings.
 
 ---
 
-## 🎓 Viva / Interview Q&A
+## 🎓 10. Viva / Technical Interview Q&A
 
-<details>
-<summary><b>1. What is LDA?</b></summary>
+### Q1: What is Latent Dirichlet Allocation (LDA) and how does it work?
+> **Answer**: LDA is an unsupervised generative probabilistic model for discovering thematic structures in text collections. It posits that every document is a multinomial distribution over latent topics ($\theta_d \sim \text{Dirichlet}(\alpha)$), and each topic is a multinomial distribution over vocabulary words ($\phi_k \sim \text{Dirichlet}(\beta)$). By observing the word frequencies across documents, LDA uses algorithms such as Variational Expectation-Maximization or Collapsed Gibbs Sampling to invert the generative process and estimate the latent topic mixtures.
 
-Latent Dirichlet Allocation is an unsupervised, probabilistic topic model. It assumes each document is a mixture of topics and each topic is a distribution over words. It infers both distributions from the corpus alone, with no labels needed.
-</details>
+### Q2: What do the hyperparameters $\alpha$ (alpha) and $\beta$ (beta / eta) represent?
+> **Answer**:
+> - **$\alpha$ (Doc-Topic Prior)**: Controls document sparsity over topics. A high $\alpha$ implies documents contain an even mix of many topics; a low $\alpha$ forces documents to be dominated by only one or two specific topics.
+> - **$\beta$ (Topic-Word Prior)**: Controls topic sparsity over vocabulary words. A high $\beta$ implies topics contain broad mixtures of most words; a low $\beta$ forces each topic to be characterized by a sharp, concentrated subset of distinct keywords.
 
-<details>
-<summary><b>2. What do alpha and beta mean?</b></summary>
+### Q3: Why is removing stopwords critical in topic modelling, and what happens if you don't?
+> **Answer**: Common function words (e.g., *"the"*, *"is"*, *"and"*, *"with"*) have extremely high corpus document frequencies but carry almost zero topical meaning. If stopwords are not removed, they dominate the count matrix and saturate the top word weights across all topics. This creates massive overlap between topics, collapsing topic separation and rendering the output uninterpretable to human analysts.
 
-They are the parameters of the Dirichlet priors. **Alpha** (`doc_topic_prior`) controls how many topics a document contains: a low alpha means documents focus on few topics, a high alpha means they spread across many. **Beta / eta** (`topic_word_prior`) controls how many words define a topic: a low beta gives topics with few dominant words, a high beta gives broader topics.
-</details>
+### Q4: How do you choose the optimal number of topics ($k$)?
+> **Answer**: Choosing $k$ requires balancing mathematical metrics with qualitative interpretability:
+> 1. **Topic Coherence ($C_v$ or $U_{mass}$)**: Measures semantic similarity between the high-scoring words of a topic. Higher coherence generally correlates with human interpretability.
+> 2. **Perplexity / Hold-out Log-Likelihood**: Measures how well the model predicts held-out documents. Lower perplexity indicates better statistical fit, though very low perplexity can sometimes lead to over-fragmented, uninterpretable micro-topics.
+> 3. **The Elbow / Peak Method**: Run a grid search over $k \in [2, 15]$ (as implemented in Tab 5 of this application), plot the metric curves, and choose the $k$ at peak coherence or the elbow of the perplexity curve.
 
-<details>
-<summary><b>3. Why remove stopwords?</b></summary>
+### Q5: What is the key difference between LDA and NMF?
+> **Answer**:
+> - **Mathematical Framework**: LDA is a **probabilistic** model based on Bayesian inference and Dirichlet distributions; NMF is a **linear algebraic** matrix factorization technique that decomposes a term-document matrix $V \approx W \times H$ under non-negativity constraints ($W \ge 0, H \ge 0$).
+> - **Input Representation**: LDA traditionally operates on raw count matrices (`CountVectorizer`) because it models discrete word draws; NMF operates effectively on continuous, weighted matrices such as `TfidfVectorizer`.
+> - **Output Interpretation**: LDA output values naturally represent well-calibrated probabilities that sum to 1.0; NMF produces parts-based additive component activations that require normalization for probabilistic interpretation.
+> - **Speed**: NMF is typically much faster to converge than LDA on small-to-medium corpora.
 
-Words like "the", "is", and "and" appear in nearly every document and carry little meaning. Left in, they would dominate every topic and hide the informative words. Removing them also shrinks the vocabulary and speeds up training.
-</details>
-
-<details>
-<summary><b>4. Why lemmatize?</b></summary>
-
-Lemmatization maps word forms (running, ran, runs) to a base form (run). This merges counts that would otherwise be split, giving a smaller vocabulary and more stable topics.
-</details>
-
-<details>
-<summary><b>5. How do you choose the number of topics?</b></summary>
-
-Train models over a range of *k*, compare coherence (and perplexity), pick the point where coherence peaks or levels off, and then check by reading the top words. This app automates the search under **Model Evaluation**.
-</details>
-
-<details>
-<summary><b>6. What is the difference between LDA and NMF?</b></summary>
-
-LDA is a probabilistic generative model using word counts and Dirichlet priors. NMF is a linear-algebra factorization of a (usually TF-IDF) matrix into two non-negative matrices. NMF is often faster and gives crisper topics on short texts, while LDA gives proper probability distributions.
-</details>
-
-<details>
-<summary><b>7. What is coherence?</b></summary>
-
-A score of how semantically related the top words in a topic are, usually based on how often they co-occur in the corpus. High coherence means a topic is more human-interpretable. c_v is a common variant.
-</details>
-
-<details>
-<summary><b>8. Why not rely on perplexity alone?</b></summary>
-
-Lower perplexity means a better statistical fit, but research shows it can correlate poorly with human judgment, and it often keeps improving as *k* grows. Coherence is a better guide for interpretability.
-</details>
-
-<details>
-<summary><b>9. Why use CountVectorizer for LDA and TF-IDF for NMF?</b></summary>
-
-LDA models word counts as draws from multinomial distributions, so it needs integer counts. NMF works on any non-negative matrix, and TF-IDF down-weights very common words, which usually improves topic quality.
-</details>
-
-<details>
-<summary><b>10. How does the app predict the topic of new text?</b></summary>
-
-The new text goes through the same preprocessing and the already-fitted vectorizer, and the trained model's `transform` method returns a topic distribution. The highest-probability topic is shown as the dominant topic.
-</details>
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome.
-
-1. Fork the repository
-2. Create a branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "Add your feature"`
-4. Push the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙌 Acknowledgements
-
-- [scikit-learn](https://scikit-learn.org/) for LDA, NMF, and the 20 Newsgroups dataset
-- [NLTK](https://www.nltk.org/) for text preprocessing tools
-- [Streamlit](https://streamlit.io/) for the web interface
-- [gensim](https://radimrehurek.com/gensim/) and [pyLDAvis](https://github.com/bmabey/pyLDAvis) for coherence and topic visualization
-
----
-
-⭐ If you found this project useful, consider giving it a star!
-
+### Q6: What is Topic Coherence ($C_v$) and why is it preferred over Perplexity?
+> **Answer**: While perplexity evaluates how well a statistical model fits the data distribution, empirical research (e.g., Chang et al., *"Reading Tea Leaves: How Humans Interpret Topic Models"*) proved that models with the lowest perplexity often produce topics that humans judge to be nonsensical. 
+> 
+> **Topic Coherence ($C_v$)** directly measures the degree of semantic similarity among the top $N$ keywords within a topic using normalized point-wise mutual information (NPMI) and cosine similarity over sliding document windows. High coherence ensures that the top words actually co-occur together in meaningful human contexts.
